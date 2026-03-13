@@ -83,3 +83,20 @@ def create_patient(patient: Patient):
     save_data(data)
 
     return JSONResponse(content={"message": "Patient created successfully"}, status_code=201)
+
+
+
+@app.delete("/delete/{patient_id}")
+def delete_patient(patient_id: str):
+    data = load_data()
+
+    if "patients" not in data:
+        raise HTTPException(status_code=404, detail="No patients found")
+
+    for i, patient in enumerate(data["patients"]):
+        if patient["patient_id"] == patient_id:
+            del data["patients"][i]
+            save_data(data)
+            return JSONResponse(content={"message": "Patient deleted successfully"}, status_code=200)
+
+    raise HTTPException(status_code=404, detail="Patient not found")
