@@ -100,3 +100,34 @@ def delete_patient(patient_id: str):
             return JSONResponse(content={"message": "Patient deleted successfully"}, status_code=200)
 
     raise HTTPException(status_code=404, detail="Patient not found")
+
+
+@app.get("/patients")
+def get_patients(
+    gender: Annotated[Optional[str], Query()] = None,
+    min_age: Annotated[Optional[int], Query()] = None
+):
+    data = load_data()
+
+    patients = data.get("patients", [])
+
+    if gender:
+        patients = [p for p in patients if p["gender"] == gender]
+
+    if min_age:
+        patients = [p for p in patients if p["age"] >= min_age]
+
+    return {"patients": patients}
+
+@app.get("/patients")
+def get_patients(
+    limit: Annotated[int, Query(ge=1, le=50)] = 10,
+    offset: Annotated[int, Query(ge=0)] = 0
+):
+    data = load_data()
+
+    patients = data.get("patients", [])
+
+    return {
+        "patients": patients[offset: offset + limit]
+    }
